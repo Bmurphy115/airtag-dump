@@ -1,0 +1,307 @@
+"""
+Sample bug patterns for firmware analysis.
+These patterns are common vulnerabilities found in embedded systems and BLE devices.
+"""
+
+from datetime import datetime
+from typing import List
+
+from .models import Bug, BugCategory, BugStatus, Severity
+
+
+def get_sample_bugs() -> List[Bug]:
+    """
+    Get a list of sample bugs with patterns relevant to firmware analysis,
+    particularly for nRF52 and similar BLE-enabled microcontrollers.
+    """
+    now = datetime.now()
+
+    return [
+        # Cryptographic weaknesses
+        Bug(
+            id=None,
+            name="Hardcoded AES Key (All Zeros)",
+            description="Detected all-zero AES key which indicates weak or placeholder cryptography",
+            severity=Severity.CRITICAL,
+            category=BugCategory.CRYPTOGRAPHIC_WEAKNESS,
+            status=BugStatus.OPEN,
+            affected_component="crypto",
+            pattern="00000000000000000000000000000000",
+            cve_id=None,
+            cvss_score=9.1,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="128-bit all-zero key commonly used as placeholder",
+        ),
+        Bug(
+            id=None,
+            name="Hardcoded AES Key (All Ones)",
+            description="Detected all-ones AES key which indicates weak or test cryptography",
+            severity=Severity.CRITICAL,
+            category=BugCategory.CRYPTOGRAPHIC_WEAKNESS,
+            status=BugStatus.OPEN,
+            affected_component="crypto",
+            pattern="ffffffffffffffffffffffffffffffff",
+            cve_id=None,
+            cvss_score=9.1,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="128-bit all-ones key commonly used in testing",
+        ),
+        Bug(
+            id=None,
+            name="Sequential Test Key",
+            description="Detected sequential byte key (0x00-0x0F) indicating test/debug key",
+            severity=Severity.HIGH,
+            category=BugCategory.CRYPTOGRAPHIC_WEAKNESS,
+            status=BugStatus.OPEN,
+            affected_component="crypto",
+            pattern="000102030405060708090a0b0c0d0e0f",
+            cve_id=None,
+            cvss_score=8.5,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Sequential key often used in examples and tests",
+        ),
+
+        # Debug/development artifacts
+        Bug(
+            id=None,
+            name="Debug String Detected",
+            description="Found 'DEBUG' string in binary indicating debug code left in production",
+            severity=Severity.MEDIUM,
+            category=BugCategory.INFORMATION_DISCLOSURE,
+            status=BugStatus.OPEN,
+            affected_component="firmware",
+            pattern="4445425547",  # "DEBUG" in ASCII
+            cve_id=None,
+            cvss_score=5.3,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Debug strings may leak sensitive information",
+        ),
+        Bug(
+            id=None,
+            name="Test String Detected",
+            description="Found 'TEST' string in binary indicating test code in production",
+            severity=Severity.LOW,
+            category=BugCategory.INFORMATION_DISCLOSURE,
+            status=BugStatus.OPEN,
+            affected_component="firmware",
+            pattern="54455354",  # "TEST" in ASCII
+            cve_id=None,
+            cvss_score=3.1,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Test code may have reduced security checks",
+        ),
+        Bug(
+            id=None,
+            name="TODO Comment in Binary",
+            description="Found 'TODO' string suggesting incomplete implementation",
+            severity=Severity.LOW,
+            category=BugCategory.OTHER,
+            status=BugStatus.OPEN,
+            affected_component="firmware",
+            pattern="544f444f",  # "TODO" in ASCII
+            cve_id=None,
+            cvss_score=2.0,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="TODO markers indicate potentially incomplete code",
+        ),
+
+        # Hardcoded credentials
+        Bug(
+            id=None,
+            name="Default Password Pattern",
+            description="Detected common default password string 'password'",
+            severity=Severity.HIGH,
+            category=BugCategory.HARDCODED_CREDENTIALS,
+            status=BugStatus.OPEN,
+            affected_component="authentication",
+            pattern="70617373776f7264",  # "password" in ASCII
+            cve_id=None,
+            cvss_score=8.1,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Hardcoded default passwords are a critical security risk",
+        ),
+        Bug(
+            id=None,
+            name="Admin Credential Pattern",
+            description="Detected 'admin' string potentially indicating hardcoded credentials",
+            severity=Severity.MEDIUM,
+            category=BugCategory.HARDCODED_CREDENTIALS,
+            status=BugStatus.OPEN,
+            affected_component="authentication",
+            pattern="61646d696e",  # "admin" in ASCII
+            cve_id=None,
+            cvss_score=6.5,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="May indicate hardcoded admin account",
+        ),
+
+        # BLE-specific vulnerabilities
+        Bug(
+            id=None,
+            name="BLE Legacy Pairing Mode",
+            description="Detected BLE Just Works pairing which has no MITM protection",
+            severity=Severity.MEDIUM,
+            category=BugCategory.AUTHENTICATION_BYPASS,
+            status=BugStatus.OPEN,
+            affected_component="ble_stack",
+            pattern="00000000",  # Simplified - actual pattern depends on stack
+            cve_id=None,
+            cvss_score=6.8,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Just Works pairing is vulnerable to MITM attacks",
+        ),
+
+        # Memory corruption patterns
+        Bug(
+            id=None,
+            name="Potential Stack Overflow Marker",
+            description="Pattern associated with stack overflow in ARM Cortex-M",
+            severity=Severity.HIGH,
+            category=BugCategory.BUFFER_OVERFLOW,
+            status=BugStatus.OPEN,
+            affected_component="firmware",
+            pattern="deadbeef",
+            cve_id=None,
+            cvss_score=7.5,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="0xDEADBEEF often used as stack canary or corruption marker",
+        ),
+        Bug(
+            id=None,
+            name="Uninitialized Memory Pattern",
+            description="Pattern indicating potentially uninitialized memory",
+            severity=Severity.MEDIUM,
+            category=BugCategory.UNINITIALIZED_MEMORY,
+            status=BugStatus.OPEN,
+            affected_component="firmware",
+            pattern="cdcdcdcd",
+            cve_id=None,
+            cvss_score=5.5,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="0xCDCDCDCD is MSVC uninitialized heap fill pattern",
+        ),
+        Bug(
+            id=None,
+            name="Free'd Memory Access Pattern",
+            description="Pattern indicating use of freed memory",
+            severity=Severity.HIGH,
+            category=BugCategory.USE_AFTER_FREE,
+            status=BugStatus.OPEN,
+            affected_component="firmware",
+            pattern="feeefeee",
+            cve_id=None,
+            cvss_score=7.8,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="0xFEEEFEEE indicates freed heap memory in some allocators",
+        ),
+
+        # nRF52-specific patterns
+        Bug(
+            id=None,
+            name="nRF52 APPROTECT Disabled",
+            description="Access port protection appears to be disabled",
+            severity=Severity.CRITICAL,
+            category=BugCategory.AUTHENTICATION_BYPASS,
+            status=BugStatus.OPEN,
+            affected_component="uicr",
+            pattern="ffffffff",  # APPROTECT disabled when UICR.APPROTECT = 0xFFFFFFFF
+            cve_id=None,
+            cvss_score=9.8,
+            memory_address="0x10001208",
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Disabled APPROTECT allows debug access to protected devices",
+        ),
+
+        # Format string vulnerability patterns
+        Bug(
+            id=None,
+            name="Printf Format String",
+            description="Detected printf format specifier that may indicate format string vulnerability",
+            severity=Severity.MEDIUM,
+            category=BugCategory.FORMAT_STRING,
+            status=BugStatus.OPEN,
+            affected_component="firmware",
+            pattern="25732573",  # "%s%s" - multiple format specifiers
+            cve_id=None,
+            cvss_score=6.3,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Multiple format specifiers may indicate vulnerable printf call",
+        ),
+
+        # Known CVEs for reference
+        Bug(
+            id=None,
+            name="SweynTooth - Link Layer Length Overflow",
+            description="BLE Link Layer length field overflow affecting multiple SoC vendors",
+            severity=Severity.HIGH,
+            category=BugCategory.BUFFER_OVERFLOW,
+            status=BugStatus.OPEN,
+            affected_component="ble_stack",
+            pattern="/03.{4}ff/",  # Regex for LL packet with large length
+            cve_id="CVE-2019-16336",
+            cvss_score=8.0,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="Part of SweynTooth vulnerability family",
+        ),
+        Bug(
+            id=None,
+            name="InternalBlue - LMP Buffer Overflow",
+            description="LMP packet processing buffer overflow in Bluetooth stacks",
+            severity=Severity.HIGH,
+            category=BugCategory.BUFFER_OVERFLOW,
+            status=BugStatus.OPEN,
+            affected_component="bluetooth_stack",
+            pattern=None,  # Complex, requires specific analysis
+            cve_id="CVE-2020-0022",
+            cvss_score=8.8,
+            memory_address=None,
+            firmware_version=None,
+            discovery_date=now,
+            last_updated=now,
+            notes="BlueFrag vulnerability - affects Android Bluetooth stack",
+        ),
+    ]
